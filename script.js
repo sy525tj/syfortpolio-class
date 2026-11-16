@@ -5,6 +5,8 @@ const copyButton = document.querySelector(".copy-button");
 const contactForm = document.querySelector("#contact-form");
 const contactFormStatus = document.querySelector("#contact-form-status");
 const yearElement = document.querySelector("#current-year");
+const themeToggle = document.querySelector(".theme-toggle");
+const themeColorMeta = document.querySelector('meta[name="theme-color"]');
 const projectModal = document.querySelector("#project-details-modal");
 const projectModalTitle = document.querySelector("#project-modal-title");
 const projectModalDescription = document.querySelector("#project-modal-description");
@@ -38,6 +40,37 @@ const projectDetails = {
 };
 
 let modalTrigger;
+
+function setTheme(theme) {
+  const isDark = theme === "dark";
+  document.documentElement.dataset.theme = theme;
+  themeToggle?.setAttribute("aria-pressed", String(isDark));
+  const themeLabel = themeToggle?.querySelector(".theme-toggle-label");
+  const themeIcon = themeToggle?.querySelector(".theme-icon");
+  if (themeLabel) themeLabel.textContent = isDark ? "Light mode" : "Dark mode";
+  if (themeIcon) themeIcon.textContent = isDark ? "☀" : "☾";
+  themeColorMeta?.setAttribute("content", isDark ? "#171a18" : "#f6f5f0");
+}
+
+let savedTheme = "light";
+try {
+  const storedTheme = window.localStorage.getItem("portfolio-theme");
+  if (storedTheme === "light" || storedTheme === "dark") savedTheme = storedTheme;
+} catch (error) {
+  console.error("Could not load the saved theme preference.", error);
+}
+setTheme(savedTheme);
+
+themeToggle?.addEventListener("click", () => {
+  const nextTheme = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  setTheme(nextTheme);
+  try {
+    window.localStorage.setItem("portfolio-theme", nextTheme);
+  } catch (error) {
+    console.error("Could not save the theme preference.", error);
+    showToast("Theme preference could not be saved.", true);
+  }
+});
 
 if (yearElement) {
   yearElement.textContent = String(new Date().getFullYear());
